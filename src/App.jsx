@@ -9,6 +9,13 @@ function App() {
   );
   const [stylePreset, setStylePreset] = useState("vscode");
   const previewRef = useRef(null);
+  const MESSAGE_MAX = 240;
+  const remaining = MESSAGE_MAX - message.length;
+  const hintClassName = useMemo(() => {
+    if (remaining <= 0) return "gp-hint max";
+    if (remaining <= 40) return "gp-hint warn";
+    return "gp-hint";
+  }, [remaining]);
 
   const snippetText = useMemo(() => {
     const lines = [
@@ -24,7 +31,7 @@ function App() {
   const copyToClipboard = async () => {
     try {
       await navigator.clipboard.writeText(snippetText);
-    } catch (_) {
+    } catch {
       // fallback para navegadores sin clipboard API
       const textarea = document.createElement("textarea");
       textarea.value = snippetText;
@@ -78,7 +85,11 @@ function App() {
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               placeholder="Escribe tu agradecimiento..."
+              maxLength={MESSAGE_MAX}
             />
+            <div className={hintClassName} aria-live="polite">
+              {message.length} / {MESSAGE_MAX} caracteres
+            </div>
           </div>
 
           <div className="gp-field">
